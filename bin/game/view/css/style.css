@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800&display=swap');
+
+.mi-title {
+    -fx-font-family: "Bangers";
+    -fx-font-size: 90px;
+    -fx-fill: #5ab4f0;
+    -fx-stroke: #003080;
+    -fx-stroke-width: 2.5px;
+    -fx-effect: dropshadow(three-pass-box, #001840, 10, 0, 4, 4);
+}
+
+.mi-button {
+    -fx-background-color: #a8e63d; /* mi-lime */
+    -fx-text-fill: #1a0533;
+    -fx-font-family: "Nunito";
+    -fx-font-weight: 800;
+    -fx-font-size: 22px;
+    -fx-background-radius: 40;
+    -fx-padding: 12 60;
+    -fx-cursor: hand;
+}
+
+.mi-button:hover {
+    -fx-background-color: #00e5d4; /* High contrast hover */
+    -fx-text-fill: #0a1628;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.btn-exit { -fx-background-color: #c0392b; -fx-text-fill: white; }
+
+.mi-popup {
+    -fx-background-color: rgba(15, 2, 37, 0.95);
+    -fx-border-color: #00b8a9;
+    -fx-border-width: 3;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 40;
+}
+
+.mi-prompt {
+    -fx-font-family: "Bangers";
+    -fx-font-size: 40px;
+    -fx-fill: #a8e63d;
+}
+
+.mi-instr-text {
+    -fx-font-family: "Nunito";
+    -fx-font-size: 18px;
+    -fx-fill: #ffffff;
+    -fx-text-alignment: center;
+}
+
+.secondary-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #00e5d4;
+    -fx-border-color: #00b8a9;
+    -fx-border-radius: 30;
+    -fx-cursor: hand;
+}
+
+.gear-icon { -fx-font-size: 40px; -fx-fill: #00b8a9; -fx-cursor: hand; }
+.gear-icon:hover { -fx-fill: #a8e63d; }
