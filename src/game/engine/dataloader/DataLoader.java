@@ -10,11 +10,15 @@ import game.engine.Role;
 import game.engine.cards.*;
 import game.engine.cells.*;
 import game.engine.monsters.*;
+import game.view.start.GameSection;
+import game.view.start.HFormat;
+import game.view.start.IconLabel;
 
 public class DataLoader {
 	private static final String CARDS_FILE_NAME = "cards.csv";
 	private static final String CELLS_FILE_NAME = "cells.csv";
 	private static final String MONSTERS_FILE_NAME = "monsters.csv";
+	private static final String INSTRUCTIONS_FILE_NAME = "instructions.csv";
 	
 	@SuppressWarnings("resource")
 	public static ArrayList<Card> readCards() throws IOException {
@@ -127,6 +131,47 @@ public class DataLoader {
 		br.close();
 
 		return monsters;
+	}
+	
+	@SuppressWarnings("resource")
+	public static ArrayList<GameSection> readIconLabels() throws IOException {
+		ArrayList<GameSection> iconlabels = new ArrayList<GameSection>();
+		GameSection letter=new GameSection(null);
+		
+		
+		try(BufferedReader br=new BufferedReader(new FileReader(INSTRUCTIONS_FILE_NAME));){
+			while (br.ready()) {
+				String nextLine = br.readLine();
+				String[] data = nextLine.split(",");
+				
+			
+				if (data.length != 2 && data.length !=3)
+					throw new InvalidCSVFormat(nextLine);
+				
+				IconLabel iconlabel;
+				
+				if(data.length==2){
+					iconlabel = new IconLabel(data[0], data[1]);
+					letter.addItems(iconlabel);
+				}
+				else{
+					HFormat hf=HFormat.valueOf(data[2]);
+					iconlabel=new IconLabel(data[0], data[1],hf,false,false);
+					if(hf==HFormat.SUBTITLE)letter.addItems(iconlabel);
+					else if(hf==HFormat.TITLE){
+						if(letter.getTitle()==null) letter.setTitle(iconlabel);
+						else letter= new GameSection(iconlabel);
+						iconlabels.add(letter);
+					}
+					//if(hf==HFormat.SUBTITLE){
+				}
+				
+			}
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		
+		return iconlabels;
 	}
 	
 }
