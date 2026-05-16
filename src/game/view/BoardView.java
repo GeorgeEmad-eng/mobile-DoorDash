@@ -22,7 +22,7 @@ public class BoardView {
 
     private Stage stage;
 
-    // ── Live stat labels (Stats panel – right side) ──────────────
+    // ── Live state labels (States panel – right side) ──────────────
     private Label statsEnergyValueLabel;
     private ProgressBar statsEnergyBar;
     private Label statsStatusLabel;

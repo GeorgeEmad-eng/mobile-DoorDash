@@ -2,23 +2,25 @@ package game.view.start;
 
 import game.engine.dataloader.DataLoader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
-public class GameInstructions extends Application{
+public class GameInstructions extends BorderPane {
 	private static int currentLetter=0;
 	private static ArrayList<VBox> letters;
+	private static NavButton left;
+	private static NavButton right;
+	private static Text letterNumber;
+	
 	
 	static int nextLetter(int dir){
 		int dist=currentLetter+dir;
@@ -27,23 +29,21 @@ public class GameInstructions extends Application{
 		currentLetter=dist;
 		return dist;
 	}
-	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public GameInstructions() throws IOException{
 		
 		letters=new ArrayList<VBox>();
 		ArrayList<GameSection> instructionData=DataLoader.readIconLabels();
 		
 		for (GameSection gameSection : instructionData)	{
 			VBox letterView= new VBox();
-			letterView.getChildren().addAll(gameSection.getTitle(),gameSection.letter);
+			letterView.getChildren().addAll(gameSection.getTitle(),gameSection.backWindowPopUp);
 			letters.add(letterView);
 		}
 		
+		left=new NavButton("❮");
+		right=new NavButton("❯ ");
 		
-		NavButton left=new NavButton("❮");
-		NavButton right=new NavButton("❯ ");
-		
-		Text letterNumber=new Text(currentLetter+1+"");
+		letterNumber=new Text(currentLetter+1+"");
 		letterNumber.setFont(Font.font(20));
 		letterNumber.setFill(Color.WHITE);
 		
@@ -55,42 +55,34 @@ public class GameInstructions extends Application{
 		
 		StackPane footer= new StackPane();
 		footer.getChildren().add(letterNumber);
-		
-		BorderPane root = new BorderPane();
-		root.setStyle(
-		    "-fx-background-color: linear-gradient(to left,  #1F5C66, #301D61);" +
-		    "-fx-padding: 25;"
+		this.setStyle(
+		    "-fx-background-color: rgba(31, 92, 102, 0.78);"+
+		    "-fx-padding: 25;"+
+		    "-fx-border-color: #0b8a90;"+
+		    "-fx-border-width: 3;"+
+		    "-fx-border-radius: 20;"+
+		    "-fx-background-radius: 20;"
 		);
 		
-		root.setRight(rightSide);
-		root.setLeft(leftSide);
-		root.setCenter(letters.get(currentLetter));
-		root.setBottom(footer);
+		this.setRight(rightSide);
+		this.setLeft(leftSide);
+		this.setCenter(letters.get(currentLetter));
+		this.setBottom(footer);
 		
 		left.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e) {
-				root.setCenter(letters.get(nextLetter(-1)));
+				setCenter(letters.get(nextLetter(-1)));
 				letterNumber.setText(currentLetter+1+"");
 			}
 		});
 		right.setOnMouseClicked(new EventHandler<Event>() {
 			@Override
 			public void handle(Event e) {
-				root.setCenter(letters.get(nextLetter(1)));
+				setCenter(letters.get(nextLetter(1)));
 				letterNumber.setText(currentLetter+1+"");
 			}
-		});
-		
-		Scene scene = new Scene(root,1050,980);
-		
-		primaryStage.setTitle("How to play ?");
-		primaryStage.setScene(scene);
-		primaryStage.show();
-	
-	}
-
-	public static void main(String[] args) {
-		launch(args);
+		});		
+	System.out.println("hello");
 	}
 }
