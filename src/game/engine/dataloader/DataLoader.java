@@ -134,7 +134,7 @@ public class DataLoader {
 	}
 	
 	@SuppressWarnings("resource")
-	public static ArrayList<GameSection> readIconLabels() throws IOException {
+	public static ArrayList<GameSection> readIconLabels() throws IOException{
 		ArrayList<GameSection> iconlabels = new ArrayList<GameSection>();
 		GameSection letter=new GameSection(null);
 		
@@ -151,7 +151,8 @@ public class DataLoader {
 				IconLabel iconlabel;
 				
 				if(data.length==2){
-					iconlabel = new IconLabel(data[0], data[1]);
+					String str=(data[0].length()>70)?data[0].replace(":", ": \n"):data[0];
+					iconlabel = new IconLabel(str, data[1]);
 					letter.addItems(iconlabel);
 				}
 				else{

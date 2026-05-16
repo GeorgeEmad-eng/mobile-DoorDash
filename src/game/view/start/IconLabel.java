@@ -21,8 +21,7 @@ public class IconLabel extends HBox{
 		private Text txt;
 		private Text icon;
 		public IconLabel(String sen,String iconFill,HFormat hf,boolean rev,boolean coverIt){
-		
-			super();
+			
 			txt=new Text(sen.substring(2));
 			txt.setFill(FILL_P1);
 			icon =new Text(sen.substring(0,2));
@@ -38,11 +37,7 @@ public class IconLabel extends HBox{
 			rev=!rev;
 			this.setOnMouseEntered(e->{
 				heading(HFormat.ENLARGE);
-				fillBad(Color.BLACK,"-fx-border-radius: 28;"
-							       +"-fx-border-color: #F0F8FF ;"
-							       +"-fx-border-width: 2;");
-				//"-fx-background-color: linear-gradient(to bottom, #1b1b2f ,#69888C);"+
-				//this.setOpacity(0.28);
+				this.setEffect(null);
 				txt.setFill(Color.WHEAT);
 			});
 			this.setOnMouseExited(new EventHandler<Event>(){
@@ -57,7 +52,7 @@ public class IconLabel extends HBox{
 			});
 		}
 		
-		public void heading(double size,int enlarge){
+		private void heading(double size,int enlarge){
 			
 			
 			Font f1=Font.font(FONT,WEIGHT, size);
@@ -78,6 +73,7 @@ public class IconLabel extends HBox{
 			case ENLARGE:size=20;break;
 			default :System.out.println("not determined size for the HFormat");
 			}
+			if(hf!=HFormat.TITLE)this.setAlignment(Pos.CENTER);
 			this.heading(size,ICON_ENLARGE);
 			
 		}
@@ -88,16 +84,15 @@ public class IconLabel extends HBox{
 			whiteGlow.setRadius(20);
 			whiteGlow.setSpread(0.5);
 			this.setStyle(CSS);
-			this.setAlignment(Pos.CENTER);
 			this.setSpacing(7);
-			this.setOpacity(2);
 			this.setEffect(whiteGlow);
-			VBox.setMargin(this, new Insets(0, 0, 5, 0));
 
 		}
 		public void fillBad(){
 			fillBad(Color.WHITE,"-fx-background-color: linear-gradient(to bottom, #1b1b2f ,#69888C);"
-					+"-fx-min-width:700;"
-				    +"-fx-max-width:800;");
+					+"-fx-background-radius: 8;"
+					+"-fx-padding: 8");
+			VBox.setMargin(this, new Insets(0,0,14,0));
+			
 		}
 }

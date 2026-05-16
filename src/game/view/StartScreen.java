@@ -1,18 +1,17 @@
 package game.view;
 
+import java.io.IOException;
+
+import game.view.start.GameInstructions;
 import game.controller.GamePlay;
 import game.engine.Role;
 import javafx.animation.*;
-import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -20,48 +19,52 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class StartScreen extends Application {
+public class StartScreen extends Stage {
 
     private final GamePlay controller; // Controller link
 
     private StackPane root;
     private VBox mainLayout;
-    private VBox rolePopup;
-    private VBox instructionsPopup;
-    private StackPane overlay;
-    private MediaPlayer mediaPlayer;
-    private Stage primaryStage;
+    private Popup rolePopup;
+    private Popup instructionsPopup;
 
-    // Constructor to inject controller authority
-    public StartScreen(GamePlay controller) {
-        this.controller = controller;
-    }
+    // ✅ FIX: store stage globally
+    private static Button scarerBtn;
+    private static Button laugherBtn;
+    
+    
+    public VBox getInstructionsPopup() {
+		return instructionsPopup;
+	}
 
-    @Override
-    public void start(Stage stage) {
-        this.primaryStage = stage;
+	public Button getScarerBtn() {
+		return scarerBtn;
+	}
+
+	public Button getLaugherBtn() {
+		return laugherBtn;
+	}
+
+    public StartScreen(){ 
+
+        // ✅ FIX: assign stage
         root = new StackPane();
         root.setStyle("-fx-background-color: radial-gradient(center 50% 50%, radius 100%, #1a331a, #0f0225);");
 
         Pane animationPane = new Pane();
         createScatteredMonsterAnimation(animationPane);
 
-        overlay = new StackPane();
-        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
-        overlay.setVisible(false);
-
         setupMenus();
-        setupVolumeControl();
 
-        root.getChildren().addAll(animationPane, mainLayout, overlay, rolePopup, instructionsPopup);
+        root.getChildren().addAll(animationPane, mainLayout, rolePopup, instructionsPopup);
 
         Scene scene = new Scene(root, 1500, 980);
         scene.getStylesheets().add(getClass().getResource("/game/view/css/style.css").toExternalForm());
 
-        primaryStage.setOnCloseRequest(e -> System.exit(0));
-        primaryStage.setTitle("DooR DasH: Scare vs Laugh Touchdown");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        this.setOnCloseRequest(e -> System.exit(0));
+        this.setTitle("DooR DasH: Scare vs Laugh Touchdown");
+        this.setScene(scene);
+        this.show();
     }
 
     private void setupMenus() {
@@ -73,11 +76,11 @@ public class StartScreen extends Application {
 
         Button btnStart = new Button("START GAME");
         btnStart.getStyleClass().add("mi-button");
-        btnStart.setOnAction(e -> showPopup(rolePopup));
+        btnStart.setOnAction(e -> rolePopup.showPopup());
 
         Button btnHowTo = new Button("HOW TO PLAY");
         btnHowTo.getStyleClass().add("mi-button");
-        btnHowTo.setOnAction(e -> showPopup(instructionsPopup));
+        btnHowTo.setOnAction(e -> instructionsPopup.showPopup());
 
         Button btnExit = new Button("EXIT");
         btnExit.getStyleClass().addAll("mi-button", "btn-exit");
@@ -86,101 +89,35 @@ public class StartScreen extends Application {
         mainLayout.getChildren().addAll(title, btnStart, btnHowTo, btnExit);
 
         // ───────── ROLE POPUP ─────────
-        rolePopup = createBasePopup("SELECT YOUR SIDE");
+        rolePopup =new Popup("SELECT YOUR SIDE");
 
-        Button btnScarer = new Button("SCARER");
-        btnScarer.getStyleClass().add("mi-button");
+        scarerBtn = new Button("SCARER");
+        scarerBtn.getStyleClass().add("mi-button");
 
-        Button btnLaugher = new Button("LAUGHER");
-        btnLaugher.getStyleClass().add("mi-button");
-        btnLaugher.setStyle("-fx-background-color: #00ffe7;");
+        laugherBtn = new Button("LAUGHER");
+        laugherBtn.getStyleClass().add("mi-button");
 
         Button btnBackRole = new Button("BACK");
         btnBackRole.getStyleClass().add("secondary-button");
-        btnBackRole.setOnAction(e -> hidePopups());
+        btnBackRole.setOnAction(e -> rolePopup.hidePopup());
 
-        // HANDLED VIA CONTROLLER: Forward action up to management layer
-        btnScarer.setOnAction(e -> controller.handleStartGame(Role.SCARER));
-        btnLaugher.setOnAction(e -> controller.handleStartGame(Role.LAUGHER));
-
-        rolePopup.getChildren().addAll(btnScarer, btnLaugher, btnBackRole);
+        rolePopup.getChildren().addAll(scarerBtn, laugherBtn, btnBackRole);
 
         // ───────── INSTRUCTIONS POPUP ─────────
-        instructionsPopup = createBasePopup("HOW TO PLAY");
-
-        Text instrText = new Text(
-                "1. Select a side: Scarer or Laugher.\n" +
-                "2. Roll the dice to move across the floor.\n" +
-                "3. Land on Door Cells to collect energy.\n" +
-                "4. Avoid the CDA and traps!\n" +
-                "5. Reach position 99 first to win!"
-        );
-        instrText.getStyleClass().add("mi-instr-text");
-
+        instructionsPopup = new Popup("HOW TO PLAY ?");
+        
+        GameInstructions instrText = null;
+		try {
+			instrText = new GameInstructions();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         Button btnBackInstr = new Button("BACK");
         btnBackInstr.getStyleClass().add("secondary-button");
-        btnBackInstr.setOnAction(e -> hidePopups());
+        btnBackInstr.setOnAction(e -> instructionsPopup.hidePopup());
 
         instructionsPopup.getChildren().addAll(instrText, btnBackInstr);
-    }
-
-    private VBox createBasePopup(String titleStr) {
-        VBox popup = new VBox(20);
-        popup.setAlignment(Pos.CENTER);
-        popup.getStyleClass().add("mi-popup");
-        popup.setMaxSize(500, 450);
-        popup.setVisible(false);
-        popup.setScaleX(0);
-        popup.setScaleY(0);
-
-        Text title = new Text(titleStr);
-        title.getStyleClass().add("mi-prompt");
-        popup.getChildren().add(title);
-        return popup;
-    }
-
-    private void showPopup(VBox popup) {
-        overlay.setVisible(true);
-        popup.setVisible(true);
-        ScaleTransition st = new ScaleTransition(Duration.millis(300), popup);
-        st.setToX(1);
-        st.setToY(1);
-        st.play();
-    }
-
-    private void hidePopups() {
-        overlay.setVisible(false);
-        rolePopup.setVisible(false);
-        rolePopup.setScaleX(0);
-        rolePopup.setScaleY(0);
-        instructionsPopup.setVisible(false);
-        instructionsPopup.setScaleX(0);
-        instructionsPopup.setScaleY(0);
-    }
-
-    private void setupVolumeControl() {
-        StackPane gearContainer = new StackPane();
-        Text gearIcon = new Text("⚙");
-        gearIcon.getStyleClass().add("gear-icon");
-        gearContainer.getChildren().add(gearIcon);
-        gearContainer.setPadding(new Insets(20));
-
-        Slider volumeSlider = new Slider(0, 1, 0.5);
-        volumeSlider.setMaxWidth(150);
-        volumeSlider.setVisible(false);
-        volumeSlider.getStyleClass().add("volume-slider");
-
-        gearContainer.setOnMouseClicked(e -> volumeSlider.setVisible(!volumeSlider.isVisible()));
-        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (mediaPlayer != null) mediaPlayer.setVolume(newVal.doubleValue());
-        });
-
-        VBox volumeBox = new VBox(10, gearContainer, volumeSlider);
-        volumeBox.setAlignment(Pos.TOP_RIGHT);
-        volumeBox.setPickOnBounds(false);
-
-        StackPane.setAlignment(volumeBox, Pos.TOP_RIGHT);
-        root.getChildren().add(volumeBox);
     }
 
     private void createScatteredMonsterAnimation(Pane pane) {
@@ -208,4 +145,5 @@ public class StartScreen extends Application {
             pane.getChildren().add(monster);
         }
     }
+
 }
