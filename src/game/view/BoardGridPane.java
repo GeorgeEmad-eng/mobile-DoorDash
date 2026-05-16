@@ -2,7 +2,9 @@ package game.view;
 
 import game.engine.Constants;
 import game.engine.Game;
+import game.engine.Role;
 import game.engine.cells.Cell;
+import game.engine.cells.DoorCell;
 import game.engine.cells.MonsterCell;
 import game.engine.monsters.Monster;
 import javafx.geometry.Pos;
@@ -32,7 +34,8 @@ public class BoardGridPane extends GridPane {
 
         setHgap(4);
         setVgap(4);
-        setAlignment(Pos.CENTER);
+        setAlignment(Pos.BASELINE_LEFT);
+        
 
         if (game == null || game.getBoard() == null) {
             System.out.println("ERROR: Game or Board is NULL");
@@ -55,7 +58,7 @@ public class BoardGridPane extends GridPane {
         return false;
     }
 
-    private Cell getCellFromBoard(int index) {
+    public Cell getCellFromBoard(int index) {
         if (game == null || game.getBoard() == null) return null;
         int row = index / COLS;
         int col = index % COLS;
@@ -71,34 +74,50 @@ public class BoardGridPane extends GridPane {
     }
 
     // ── Cell type → CSS class ────────────────────────────────────
-    private String getCellStyle(int n) {
+    private String getCellStyle(int n,Cell cell) {
         if (n == Constants.STARTING_POSITION)                 return "start-cell";
         if (n == Constants.WINNING_POSITION)                  return "end-cell";
         if (contains(Constants.MONSTER_CELL_INDICES,  n))     return "monster-cell";
         if (contains(Constants.CONVEYOR_CELL_INDICES, n))     return "conveyor-cell";
         if (contains(Constants.SOCK_CELL_INDICES,     n))     return "sock-cell";
         if (contains(Constants.CARD_CELL_INDICES,     n))     return "card-cell";
+        if (cell instanceof DoorCell) {
+            DoorCell dc = (DoorCell) cell;
+            return dc.getRole() == Role.SCARER ? "scare-door-cell" : "laugh-door-cell";
+        }
         return "normal-cell";
     }
 
     // ── Cell type → icon character drawn inside the cell ─────────
-    private String getCellIcon(int n) {
+    private String getCellIcon(int n,Cell cell) {
         if (n == Constants.STARTING_POSITION)                 return "🏠";
         if (n == Constants.WINNING_POSITION)                  return "🏁";
         if (contains(Constants.MONSTER_CELL_INDICES,  n))     return "⚡";   // door icon
         if (contains(Constants.CONVEYOR_CELL_INDICES, n))     return "→";
         if (contains(Constants.SOCK_CELL_INDICES,     n))     return "🧦";
         if (contains(Constants.CARD_CELL_INDICES,     n))     return "🃏";
+        if (cell instanceof DoorCell) {
+            DoorCell dc = (DoorCell) cell;
+            if (dc.isActivated()) return "❌"; // Cross indicator if door is used/exhausted
+            return dc.getRole() == Role.SCARER ? "⚡" : "😂"; 
+        }
         return null;
     }
 
     // ── Cell type → background image file ────────────────────────
-    private String getCellImageFilename(int n) {
+    private String getCellImageFilename(int n,Cell cell) {
         if (n == Constants.STARTING_POSITION)                 return "start.png";
         if (n == Constants.WINNING_POSITION)                  return "end.png";
         if (contains(Constants.CONVEYOR_CELL_INDICES, n))     return "conveyor.png";
         if (contains(Constants.SOCK_CELL_INDICES,     n))     return "sock.png";
         if (contains(Constants.CARD_CELL_INDICES,     n))     return "card.png";
+        if (cell instanceof DoorCell) {
+            DoorCell dc = (DoorCell) cell;
+            if (dc.isActivated()) {
+                return "door_exhausted.png"; // Renders used up door look
+            }
+            return dc.getRole() == Role.SCARER ? "scare_door.png" : "laugh_door.png";
+        }
         return null;
     }
 
@@ -160,10 +179,10 @@ public class BoardGridPane extends GridPane {
                 cellPane.setMinSize(CELL_SIZE, CELL_SIZE);
                 cellPane.setMaxSize(CELL_SIZE, CELL_SIZE);
                 cellPane.getStyleClass().add("board-cell");
-                cellPane.getStyleClass().add(getCellStyle(cellNumber));
+                cellPane.getStyleClass().add(getCellStyle(cellNumber,cell));
 
                 // ── Layer 1: background image ─────────────────────
-                String imgFile = getCellImageFilename(cellNumber);
+                String imgFile = getCellImageFilename(cellNumber,cell);
                 if (imgFile != null) {
                     ImageView bg = loadCellImage(imgFile);
                     if (bg != null) {
@@ -179,7 +198,7 @@ public class BoardGridPane extends GridPane {
                 cellPane.getChildren().add(coordLabel);
 
                 // ── Layer 3: special cell icon (center) ───────────
-                String icon = getCellIcon(cellNumber);
+                String icon = getCellIcon(cellNumber,cell);
                 if (icon != null && imgFile == null) {
                     // Only show icon if no image is covering it
                     Label iconLabel = new Label(icon);

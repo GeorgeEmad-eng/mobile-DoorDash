@@ -3,8 +3,11 @@ package game.view;
 import java.io.IOException;
 
 import game.view.start.GameInstructions;
+import game.controller.GamePlay;
+import game.engine.Role;
 import javafx.animation.*;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,12 +15,13 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.stage.Screen;
-import javafx.geometry.Rectangle2D;
 
 public class StartScreen extends Stage {
+
+    private final GamePlay controller; // Controller link
 
     private StackPane root;
     private VBox mainLayout;
@@ -45,11 +49,8 @@ public class StartScreen extends Stage {
 
         // ✅ FIX: assign stage
         root = new StackPane();
-
-        // Theme background (UNCHANGED)
         root.setStyle("-fx-background-color: radial-gradient(center 50% 50%, radius 100%, #1a331a, #0f0225);");
 
-        // Animated background (UNCHANGED)
         Pane animationPane = new Pane();
         createScatteredMonsterAnimation(animationPane);
 
@@ -67,7 +68,6 @@ public class StartScreen extends Stage {
     }
 
     private void setupMenus() {
-
         mainLayout = new VBox(30);
         mainLayout.setAlignment(Pos.CENTER);
 
@@ -121,44 +121,27 @@ public class StartScreen extends Stage {
     }
 
     private void createScatteredMonsterAnimation(Pane pane) {
-
         for (int i = 0; i < 15; i++) {
-
             Group monster = new Group();
-
-            Circle face = new Circle(25,
-                    Color.web(i % 2 == 0 ? "#5b8fd4" : "#6abf69", 0.2));
-
-            Circle eye = new Circle(8, Color.WHITE);
-            eye.setOpacity(0.4);
-
-            Circle pupil = new Circle(3, Color.BLACK);
-            pupil.setOpacity(0.4);
+            Circle face = new Circle(25, Color.web(i % 2 == 0 ? "#5b8fd4" : "#6abf69", 0.2));
+            Circle eye = new Circle(8, Color.WHITE); eye.setOpacity(0.4);
+            Circle pupil = new Circle(3, Color.BLACK); pupil.setOpacity(0.4);
 
             monster.getChildren().addAll(face, eye, pupil);
-
             monster.setLayoutX(Math.random() * 1500 - 200);
             monster.setLayoutY(Math.random() * 1200 - 200);
 
             Screen screen = Screen.getPrimary();
             Rectangle2D bounds = screen.getBounds();
-
             double w = bounds.getWidth();
             double l = bounds.getHeight();
 
-            TranslateTransition tt =
-                    new TranslateTransition(
-                            Duration.seconds(15 + Math.random() * 10),
-                            monster
-                    );
-
+            TranslateTransition tt = new TranslateTransition(Duration.seconds(15 + Math.random() * 10), monster);
             tt.setByX(Math.random() * w - 200);
             tt.setByY(Math.random() * l - 200);
-
             tt.setCycleCount(Animation.INDEFINITE);
             tt.setAutoReverse(true);
             tt.play();
-
             pane.getChildren().add(monster);
         }
     }

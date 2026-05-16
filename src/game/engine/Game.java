@@ -16,6 +16,7 @@ public class Game {
 	private Monster player;
 	private Monster opponent;
 	private Monster current;
+	private int lastDiceRoll = 0;
 	
 	public Game(Role playerRole) throws IOException {
 		this.board = new Board(DataLoader.readCards());
@@ -86,11 +87,14 @@ public class Game {
 		if (current.isFrozen()) {
 			System.out.println(current.getName() + " is frozen! Turn skipped.");
 			current.setFrozen(false);
+			this.lastDiceRoll=0;
 			switchTurn();
 			return;
 		}
 		
 		int roll = rollDice();
+		////////the last dice roll part 
+		this.lastDiceRoll = roll;
 		
 		board.moveMonster(current, roll, getCurrentOpponent());
 		
@@ -118,7 +122,8 @@ public class Game {
 
 	public int getLastDiceRoll() {
 		// TODO Auto-generated method stub
-		return 0;
+		
+		return this.lastDiceRoll;
 	}
 	
 }
