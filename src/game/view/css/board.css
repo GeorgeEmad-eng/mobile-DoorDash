@@ -419,3 +419,68 @@
 
     -fx-border-color: #bae6fd;
 }
+.bottom-condition-normal {
+    -fx-text-fill: #2ecc71;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.bottom-condition-frozen {
+    -fx-text-fill: #38bdf8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.bottom-condition-shielded {
+    -fx-text-fill: #f5c542;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.bottom-condition-confused {
+    -fx-text-fill: #a855f7;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+.powerup-button {
+    -fx-background-color: linear-gradient(to bottom, #a855f7, #7c3aed); /* Monsters Inc deep purple purple purple color */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.powerup-button:hover {
+    -fx-background-color: #9333ea;
+}
+
+.powerup-button:pressed {
+    -fx-background-color: #6b21a8;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.spam-warning-popup {
+    /* Safe vibrant industrial alerting coral red color tone */
+    -fx-background-color: linear-gradient(to right, #ef4444, #dc2626);
+    -fx-background-radius: 8px;
+    -fx-border-color: #f87171;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    
+    /* Adds depth styling dropshadow filter */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 10, 0.3, 0, 4);
+}
