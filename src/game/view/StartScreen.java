@@ -21,7 +21,7 @@ import javafx.util.Duration;
 
 public class StartScreen extends Stage {
 
-    private final GamePlay controller; // Controller link
+    //private final GamePlay controller; // Controller link
 
     private StackPane root;
     private VBox mainLayout;

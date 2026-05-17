@@ -5,6 +5,7 @@ import game.engine.Role;
 import game.view.BoardView;
 import game.view.DiceView;
 import game.view.StartScreen;
+//import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class GamePlay {
@@ -18,16 +19,7 @@ public class GamePlay {
     }
 
    
-    public void startApplication() {
-        StartScreen startScreen = new StartScreen(this);
-        try {
-            startScreen.start(primaryStage);
-        } catch (Exception e) {
-            System.err.println("Failed to launch Start Screen: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
+   
     
     public void handleStartGame(Role chosenRole) {
         try {
@@ -36,7 +28,7 @@ public class GamePlay {
 
             // 2. Initialize the main game view
             this.boardView = new BoardView(primaryStage, this, gameEngine);
-
+            
             // 3. Render the board view
             this.boardView.show();
             
@@ -55,6 +47,7 @@ public class GamePlay {
      */
     public void handleRollDiceAction() {
         if (gameEngine == null || boardView == null) return;
+        
 
         // 🆕 THE SPAM CHECK: If a turn is already processing, raise the warning popup and block execution
         if (isTurnInProgress) {
@@ -69,7 +62,7 @@ public class GamePlay {
             // 1. Advance backend calculations inside the Model engine
             gameEngine.playTurn();
             
-            game.view.DiceView diceView = boardView.getDiceView();
+            DiceView diceView = boardView.getDiceView();
             int trueRollResult = gameEngine.getLastDiceRoll();
 
             // 2. Pass control to view animation loop utility
@@ -107,4 +100,16 @@ public class GamePlay {
            
         }
     }
+
+
+//	@Override
+//	public void start(Stage primaryStage) throws Exception {
+//		StartScreen screen = new StartScreen();
+//		
+//		
+//		primaryStage = screen ;
+//		primaryStage.show();
+//		
+//		
+//	}
 }

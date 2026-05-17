@@ -22,7 +22,7 @@ public class BoardGridPane extends GridPane {
     private final int ROWS = Constants.BOARD_ROWS;
     private final int COLS = Constants.BOARD_COLS;
 
-    private static final double CELL_SIZE = 90;
+    private static final double CELL_SIZE = 80;
 
     private Game game;
 
@@ -34,7 +34,7 @@ public class BoardGridPane extends GridPane {
 
         setHgap(4);
         setVgap(4);
-        setAlignment(Pos.BASELINE_LEFT);
+        setAlignment(Pos.CENTER);
         
 
         if (game == null || game.getBoard() == null) {
@@ -125,10 +125,10 @@ public class BoardGridPane extends GridPane {
         URL url = getClass().getResource("/assets/" + filename);
         if (url == null) return null;
         try {
-            Image img = new Image(url.toExternalForm(), CELL_SIZE, CELL_SIZE, false, true);
+            Image img = new Image(url.toExternalForm(), CELL_SIZE*2, CELL_SIZE, false, true);
             if (img.isError()) return null;
             ImageView iv = new ImageView(img);
-            iv.setFitWidth(CELL_SIZE);
+            iv.setFitWidth(CELL_SIZE*2);
             iv.setFitHeight(CELL_SIZE);
             iv.setPreserveRatio(false);
             iv.setSmooth(true);
@@ -175,9 +175,9 @@ public class BoardGridPane extends GridPane {
                 Cell cell       = getCellFromBoard(cellNumber);
 
                 StackPane cellPane = new StackPane();
-                cellPane.setPrefSize(CELL_SIZE, CELL_SIZE);
+                cellPane.setPrefSize(CELL_SIZE*2, CELL_SIZE);
                 cellPane.setMinSize(CELL_SIZE, CELL_SIZE);
-                cellPane.setMaxSize(CELL_SIZE, CELL_SIZE);
+                cellPane.setMaxSize(CELL_SIZE*2, CELL_SIZE);
                 cellPane.getStyleClass().add("board-cell");
                 cellPane.getStyleClass().add(getCellStyle(cellNumber,cell));
 
@@ -260,7 +260,7 @@ public class BoardGridPane extends GridPane {
         StackPane box = new StackPane();
 
         // Bigger container
-        box.setPrefSize(78, 78);
+        box.setPrefSize(100, 100);
 
         box.setMinSize(78, 78);
 
