@@ -32,6 +32,22 @@ public class GamePlay {
             // 3. Render the board view
             this.boardView.show();
             
+         // 🆕 Register Cheat Hotkeys onto the Stage's Scene
+            primaryStage.getScene().addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                switch (event.getCode()) {
+                    case W:
+                        handleCheatTeleportAction();
+                        event.consume();
+                        break;
+                    case E:
+                        handleCheatRefillEnergyAction();
+                        event.consume();
+                        break;
+                    default:
+                        break;
+                }
+            });
+            
         } catch (Exception ex) {
             System.err.println("Initialization Error starting the game loop: " + ex.getMessage());
             ex.printStackTrace();
@@ -71,10 +87,16 @@ public class GamePlay {
                 // 3. CALLBACK ON FINISHED: Redraw the board layout items
                 boardView.refreshAllViewComponents();
                 
-                // 🆕 Unlock the action pipeline so players can roll again safely!
-                isTurnInProgress = false;
                 
-            });
+                checkForWinCondition();
+                
+                // 🆕 Unlock the action pipeline so players can roll again safely!
+                // Only unlock the turn if someone hasn't won yet
+                if (gameEngine.getWinner() == null) {
+                    isTurnInProgress = false;
+                }
+                
+            });	
 
         } catch (Exception ex) {
             System.out.println("Move skipped or rule exception: " + ex.getMessage());
@@ -96,9 +118,62 @@ public class GamePlay {
 
         } catch (game.engine.exceptions.OutOfEnergyException ex) {
             System.out.println("Action failed: " + ex.getMessage());
-            //visuallalert can bee added here by ashraff
+            boardView.showSpamWarningPopup("Not enough energy! Power-ups cost " + 
+                    game.engine.Constants.POWERUP_COST + " energy.");
            
         }
+    }
+    
+    
+    /**
+     * Checks if a win condition has been met and triggers a congratulatory popup overlay.
+     */
+    private void checkForWinCondition() {
+        if (gameEngine == null || boardView == null) return;
+
+        // Use the model engine's check logic to see if a monster reached cell 99 with >= 1000 energy
+        game.engine.monsters.Monster winner = gameEngine.getWinner();
+        if (winner != null) {
+            // Block any further action loops or inputs
+            isTurnInProgress = true; 
+
+            // Trigger our custom overlay window directly on the main canvas
+            boardView.showVictoryOverlay(
+                winner.getName(), 
+                winner.getPosition(), 
+                (int) winner.getEnergy()
+            );
+        }
+    }
+    
+    private void handleCheatTeleportAction() {
+        if (gameEngine == null || boardView == null) return;
+        
+        game.engine.monsters.Monster currentMonster = gameEngine.getCurrent();
+        currentMonster.setPosition(99);
+        System.out.println("🔮 CHEAT: Teleported " + currentMonster.getName() + " to Cell 99!");
+        
+        // Refresh UI to instantly snap the token and update stats
+        boardView.refreshAllViewComponents();
+        
+        
+        checkForWinCondition();
+    }
+
+    // 🆕 Cheat 2: Increase current moving monster's energy by 1000
+    private void handleCheatRefillEnergyAction() {
+        if (gameEngine == null || boardView == null) return;
+        
+        game.engine.monsters.Monster currentMonster = gameEngine.getCurrent();
+        int currentEnergy = currentMonster.getEnergy();
+        currentMonster.setEnergy(currentEnergy + 1000);
+        System.out.println("⚡ CHEAT: Boosted " + currentMonster.getName() + "'s energy by +1000!");
+        
+        // Refresh UI to instantly recalculate energy bars/canisters
+        boardView.refreshAllViewComponents();
+        
+        
+        checkForWinCondition();
     }
 
 
