@@ -72,7 +72,7 @@ public class BoardView {
 		// UI-bound display selection updates stay local to View presentation mechanics
 		board.setCellClickListener((cellNumber, cell) -> updateStatsPanel(cellNumber, cell, game));
 
-		VBox statsPanel = buildStatsPanel(game);
+		BorderPane statsPanel = buildStatsPanel(game);
 		HBox bottomBar = buildBottomBar(game);
 
 		BorderPane root = new BorderPane();
@@ -122,7 +122,15 @@ public class BoardView {
 		turnLabel.setText("🎯 " + currentTurnMonster.getName() + "'s turn");
 	}
 
-	private VBox buildStatsPanel(Game game) {
+	private BorderPane buildStatsPanel(Game game) {
+		//adels
+		// ── 1. Create the Main Wrapper Panel (Now a BorderPane) ──
+        BorderPane panel = new BorderPane();
+        panel.getStyleClass().add("stats-panel");
+        panel.setPrefWidth(220);
+        panel.setMinWidth(200);
+        panel.setPadding(new Insets(24, 20, 24, 20));
+        //end adels
 		Label header = new Label("Stats");
 		header.getStyleClass().add("stats-header");
 
@@ -167,9 +175,55 @@ public class BoardView {
 		VBox cellCard = new VBox(4, cellTypeTitle, statsCellTypeLabel);
 		cellCard.getStyleClass().add("stats-card");
 		cellCard.setAlignment(Pos.CENTER);
+		/// adels part 
+		// Gather metrics together into a single layout container
+        VBox topContent = new VBox(16, header, energySectionContainer, statsStatusLabel, posCard, cellCard);
+        panel.setTop(topContent); // Lock it completely to the top boundaries
 
-		Label legendTitle = new Label("LEGEND");
-		legendTitle.getStyleClass().add("legend-title");
+        // ── 3. Rotated Deck Section (Permanently anchored at the BOTTOM LEFT) ──
+        ImageView deckImageView = new ImageView();
+     // ✅ Scale it up so it takes up substantial vertical space (acts as height when rotated)
+     deckImageView.setFitWidth(380);          
+     deckImageView.setFitHeight(220); // Scale the height proportionally        
+     deckImageView.setPreserveRatio(true);    
+     deckImageView.setSmooth(true);           
+
+     // Apply the 90-degree clockwise rotation
+     deckImageView.setRotate(-90);
+
+     try {
+         URL deckUrl = getClass().getResource("/assets/deck.png");
+         if (deckUrl != null) {
+             deckImageView.setImage(new Image(deckUrl.toExternalForm()));
+         }
+     } catch (Exception e) {
+         System.out.println("Could not load deck asset: " + e.getMessage());
+     }
+
+     // ✅ THE SECRET INGREDIENT: Wrap it in a Group so JavaFX layout engine
+     // respects the 90-degree rotated bounds instead of the original horizontal bounds.
+     javafx.scene.Group rotatedGroup = new javafx.scene.Group(deckImageView);
+
+     // Wrap inside a StackPane to anchor the group cleanly in the center of the column
+     StackPane deckCenterer = new StackPane(rotatedGroup);
+     deckCenterer.setAlignment(Pos.CENTER);
+
+     // Wrap the centerer in your bottom layout container 
+     VBox deckWrapper = new VBox(deckCenterer);
+     deckWrapper.setAlignment(Pos.BOTTOM_CENTER);
+
+     // ✅ Add comfortable top padding to give it space from the cards above
+     deckWrapper.setPadding(new Insets(40, 0, 20, 0)); 
+
+     panel.setBottom(deckWrapper);
+
+        panel.setBottom(deckWrapper);
+        return panel;
+    }
+	////end adels
+
+		//Label legendTitle = new Label("LEGEND");
+		//legendTitle.getStyleClass().add("legend-title");
 		///no need for this part 
 		//        VBox legend = new VBox(8,
 		//                legendTitle,
@@ -181,14 +235,14 @@ public class BoardView {
 		//        legend.getStyleClass().add("legend-box");
 
 		// Assemble right side stack
-		VBox panel = new VBox(16, header, energySectionContainer, statsStatusLabel, posCard, cellCard);
-		panel.getStyleClass().add("stats-panel");
-		panel.setPrefWidth(220);
-		panel.setMinWidth(200);
-		panel.setPadding(new Insets(24, 20, 24, 20));
-
-		return panel;
-	}
+//		VBox panel = new VBox(16, header, energySectionContainer, statsStatusLabel, posCard, cellCard);
+//		panel.getStyleClass().add("stats-panel");
+//		panel.setPrefWidth(220);
+//		panel.setMinWidth(200);
+//		panel.setPadding(new Insets(24, 20, 24, 20));
+//
+//		return panel;
+//	}
 
 	//    private HBox legendRow(String hex, String text) {
 	//        Circle dot = new Circle(7, Color.web(hex));
@@ -501,12 +555,12 @@ public class BoardView {
 
 	private double clampEnergy(Monster m) {
 		double max = 1000.0;
-		double pct = m.getEnergy() / max;
-		return Math.max(0, Math.min(1, pct));
+		double pct = m.getEnergy();
+		return Math.max(0, pct);
 	}
 
 	private String formatEnergyPct(double pct) {
-		return (int) Math.round(pct * 100) + "%";
+		return (int) Math.round(pct * 1.00) + "";
 	}
 
 

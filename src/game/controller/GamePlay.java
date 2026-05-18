@@ -2,6 +2,9 @@ package game.controller;
 
 import game.engine.Game;
 import game.engine.Role;
+import game.engine.cards.Card;
+import game.engine.cells.CardCell;
+import game.engine.cells.Cell;
 import game.view.BoardView;
 import game.view.DiceView;
 import game.view.StartScreen;
@@ -56,56 +59,152 @@ public class GamePlay {
     
     private boolean isTurnInProgress = false;
 
+
     
-    /**
-     * Fired by the Board View when the "ROLL DICE" action occurs.
-     * Prevents button spamming by locking inputs and raising a smooth popup notice.
-     */
+    
+    
+    
+    
+    
+    
+    
+    
+    ///ahmed adelll new part card deck 
+    
     public void handleRollDiceAction() {
         if (gameEngine == null || boardView == null) return;
-        
 
-        // 🆕 THE SPAM CHECK: If a turn is already processing, raise the warning popup and block execution
         if (isTurnInProgress) {
             boardView.showSpamWarningPopup("Hold on! Wait for the dice to finish rolling.");
             return;
         }
 
-        // 🆕 Lock down the action pipeline
         isTurnInProgress = true;
 
         try {
-            // 1. Advance backend calculations inside the Model engine
-            gameEngine.playTurn();
-            
-            DiceView diceView = boardView.getDiceView();
-            int trueRollResult = gameEngine.getLastDiceRoll();
+            // 1. Run backend movement completely (Updates positions, triggers lands, draws card if applicable)
+            gameEngine.playTurn(); 
 
-            // 2. Pass control to view animation loop utility
+            // 2. Extract results calculated inside your model engine
+            int trueRollResult = gameEngine.getLastDiceRoll();
+            DiceView diceView = boardView.getDiceView();
+
+            // 3. Play visual dice roll sequence matching true engine results
             diceView.playRollAnimation(trueRollResult, () -> {
-                
-                // 3. CALLBACK ON FINISHED: Redraw the board layout items
-                boardView.refreshAllViewComponents();
-                
-                
-                checkForWinCondition();
-                
-                // 🆕 Unlock the action pipeline so players can roll again safely!
-                // Only unlock the turn if someone hasn't won yet
-                if (gameEngine.getWinner() == null) {
+                try {
+                    // 4. Safely check if a Card was drawn by the board engine during playTurn()
+                    game.engine.cards.Card drawnCard = game.engine.Board.getLastDrawnCard();
+
+                    if (drawnCard != null) {
+                        // Show the alert box window to the user using the already-processed card
+                        game.view.CardPopup.show(primaryStage, drawnCard, () -> {
+                            boardView.refreshAllViewComponents();
+                            checkForWinCondition();
+                            
+                            if (gameEngine.getWinner() == null) {
+                                isTurnInProgress = false;
+                            }
+                        });
+                    } else {
+                        // Standard tile path: Redraw graphics clean
+                        boardView.refreshAllViewComponents();
+                        checkForWinCondition();
+                        
+                        if (gameEngine.getWinner() == null) {
+                            isTurnInProgress = false;
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    System.err.println("UI Sync adjustment error: " + ex.getMessage());
+                    boardView.refreshAllViewComponents();
                     isTurnInProgress = false;
                 }
-                
-            });	
+            });
 
         } catch (Exception ex) {
-            System.out.println("Move skipped or rule exception: " + ex.getMessage());
+            System.err.println("Move skipped or rule exception: " + ex.getMessage());
             boardView.refreshAllViewComponents();
-            
-            // 🆕 Emergency fallback unlock if a core mechanics exception occurs
             isTurnInProgress = false;
         }
     }
+    
+    
+    
+    
+    
+    /**
+     * Fired by the Board View when the "ROLL DICE" action occurs.
+     * Prevents button spamming by locking inputs and raising a smooth popup notice.
+     */
+    // old part ahmed instead of adels
+//    public void handleRollDiceAction() {
+//        if (gameEngine == null || boardView == null) return;
+//        
+//
+//        // 🆕 THE SPAM CHECK: If a turn is already processing, raise the warning popup and block execution
+//        if (isTurnInProgress) {
+//            boardView.showSpamWarningPopup("Hold on! Wait for the dice to finish rolling.");
+//            return;
+//        }
+//
+//        // 🆕 Lock down the action pipeline
+//        isTurnInProgress = true;
+//
+//        try {
+//            // 1. Advance backend calculations inside the Model engine
+//            gameEngine.playTurn();
+//            
+//            DiceView diceView = boardView.getDiceView();
+//            int trueRollResult = gameEngine.getLastDiceRoll();
+//
+//            // 2. Pass control to view animation loop utility
+//            diceView.playRollAnimation(trueRollResult, () -> {
+//                
+//                // 3. CALLBACK ON FINISHED: Redraw the board layout items
+//                boardView.refreshAllViewComponents();
+//                
+//                
+//                checkForWinCondition();
+//                
+//                // 🆕 Unlock the action pipeline so players can roll again safely!
+//                // Only unlock the turn if someone hasn't won yet
+//                if (gameEngine.getWinner() == null) {
+//                    isTurnInProgress = false;
+//                }
+//                
+//            });	
+//
+//        } catch (Exception ex) {
+//            System.out.println("Move skipped or rule exception: " + ex.getMessage());
+//            boardView.refreshAllViewComponents();
+//            
+//            // 🆕 Emergency fallback unlock if a core mechanics exception occurs
+//            isTurnInProgress = false;
+//        }
+//    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     public void handleUsePowerupAction() {
         if (gameEngine == null || boardView == null) return;

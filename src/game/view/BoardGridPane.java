@@ -231,8 +231,13 @@ public class BoardGridPane extends GridPane {
                     if (cellClickListener != null) {
                         cellClickListener.accept(cn, cel);
                     }
+                    for (javafx.scene.Node node : getChildren()) {
+                        if (node instanceof StackPane) {
+                            node.getStyleClass().remove("cell-selected");
+                        }
+                    }
                     // Highlight selected
-                    cellPane.getStyleClass().remove("cell-selected");
+                    //cellPane.getStyleClass().remove("cell-selected");
                     cellPane.getStyleClass().add("cell-selected");
                 });
 
