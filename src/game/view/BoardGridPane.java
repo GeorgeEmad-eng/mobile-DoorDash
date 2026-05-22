@@ -6,7 +6,11 @@ import game.engine.Role;
 import game.engine.cells.Cell;
 import game.engine.cells.DoorCell;
 import game.engine.cells.MonsterCell;
+import game.engine.monsters.Dasher;
+import game.engine.monsters.Dynamo;
 import game.engine.monsters.Monster;
+import game.engine.monsters.MultiTasker;
+import game.view.style.monsters.MonsterGUI;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -17,6 +21,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class BoardGridPane extends GridPane {
@@ -25,7 +30,7 @@ public class BoardGridPane extends GridPane {
     private final int COLS = Constants.BOARD_COLS;
 
     private static final double CELL_SIZE = 80;
-
+    ArrayList<MonsterGUI> stationedMonsters;
     private Game game;
 
     // Callback fired when the user clicks a cell: (cellNumber, cell)
@@ -33,7 +38,7 @@ public class BoardGridPane extends GridPane {
 
     public BoardGridPane(Game game) {
         this.game = game;
-
+        this.stationedMonsters=new ArrayList<MonsterGUI>();
         setHgap(4);
         setVgap(4);
         setAlignment(Pos.CENTER);
@@ -170,10 +175,10 @@ public class BoardGridPane extends GridPane {
         Monster player   = game.getPlayer();
         Monster opponent = game.getOpponent();
 
-        for (int boardRow = 0; boardRow < ROWS; boardRow++) {
+        for (int boardRow = ROWS-1; boardRow>=0; boardRow--) {
             int gridRow = (ROWS - 1) - boardRow;
 
-            for (int col = 0; col < COLS; col++) {
+            for (int col = COLS-1; col>=0; col--) {
                 int  cellNumber = getCellNumber(boardRow, col);
                 Cell cell       = getCellFromBoard(cellNumber);
                 
@@ -239,9 +244,19 @@ public class BoardGridPane extends GridPane {
                     Monster stationed = mc.getCellMonster();
                     if (stationed != null) {
                         // Show a compact icon box matching the reference image style
-                        StackPane iconBox = buildDoorIconBox(cellNumber, stationed);
-                        StackPane.setAlignment(iconBox, Pos.CENTER);
-                        cellPane.getChildren().add(iconBox);
+                    	StackPane stp=new StackPane();
+                    	String name=mc.getName();
+                    	String typeColor="";
+                    	if(stationed instanceof Dynamo)typeColor="#4CA2F7";
+                    	else if(stationed instanceof Dasher) typeColor="#97DE4A";
+                    	else if(stationed instanceof MultiTasker) typeColor="#FF8C00";
+                    	else typeColor="#C0C0C0";
+                    	MonsterGUI monster= new MonsterGUI("s_"+name,CELL_SIZE, typeColor);
+                    	if(stationed.getRole()==Role.LAUGHER)monster.laugherGUI();
+                    	else monster.scarerGUI();
+                    	this.stationedMonsters.add(monster);
+                    	stp.getChildren().add(monster);
+                        cellPane.getChildren().add(stp);
                     }
                 }
 
@@ -269,10 +284,13 @@ public class BoardGridPane extends GridPane {
                     //cellPane.getStyleClass().remove("cell-selected");
                     cellPane.getStyleClass().add("cell-selected");
                 });
-
+                
                 add(cellPane, col, gridRow);
             }
         }
+        for (MonsterGUI monsterGUI : stationedMonsters) {
+			monsterGUI.setInCell();
+		}
     }
 
     private StackPane buildDoorIconBox(

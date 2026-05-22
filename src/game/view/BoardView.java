@@ -32,7 +32,7 @@ public class BoardView {
 	private final Game game;             
 
 	// ── Live state labels (States panel – right side) ──────────────
-	// ── Live stat layouts (Right side panel) ──────────────────────
+	// ── Live state layouts (Right side panel) ──────────────────────
 	private VBox energySectionContainer; // Wraps title, pct, and progress bar together
 	private Label statsEnergyValueLabel;
 	private ProgressBar statsEnergyBar;
