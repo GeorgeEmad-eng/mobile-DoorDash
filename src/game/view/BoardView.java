@@ -8,6 +8,7 @@ import game.engine.cells.Cell;
 import game.engine.cells.DoorCell;
 import game.engine.cells.MonsterCell;
 import game.engine.monsters.Monster;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.net.URL;
 
@@ -44,18 +46,21 @@ public class BoardView {
 	private Label playerRoleTagLabel;
 	private Label playerTurnStatusLabel;
 	private Label playerStatusConditionLabel; // 🆕 Permanent dynamic condition tag
-	private ImageView playerCanister;
-
+	//private ImageView playerCanister;
+	private ProgressBar playerEnergyCanister;
+	private ProgressBar oppEnergyCanister;
 	// ── Opponent UI Cards (Bottom Right) ──────────────────────────
 	private Label opponentNameLabel;
 	private Label opponentRoleTagLabel;
 	private Label opponentTurnStatusLabel;
 	private Label opponentStatusConditionLabel; // 🆕 Permanent dynamic condition tag
-	private ImageView oppCanister;
+	//private ImageView oppCanister;
 	// ── Mid-control Panels ────────────────────────────────────────
 	private Label turnLabel;
 	private BoardGridPane board;
 	private DiceView diceView;
+	private HBox centerControlsRow;
+	VBox centerBox;
 
 	public BoardView(Stage stage, GamePlay controller, Game game) {
 		this.stage = stage;
@@ -140,7 +145,7 @@ public class BoardView {
 		Monster current = game.getCurrent();
 		double energyPct = clampEnergy(current);
 
-		statsEnergyBar = new ProgressBar(energyPct);
+		statsEnergyBar = new ProgressBar(energyPct/1000);
 		statsEnergyBar.getStyleClass().add("energy-bar");
 		statsEnergyBar.setMaxWidth(Double.MAX_VALUE);
 
@@ -255,7 +260,7 @@ public class BoardView {
 
 	private HBox buildBottomBar(Game game) {
 		// ── Player 1 View Construction Setup ──
-		StackPane playerAvatar = AvatarUtil.buildAvatar(game.getPlayer(), 52);
+		StackPane playerAvatar = AvatarUtil.buildAvatar(game.getPlayer(), 70);
 		Label p1Badge = new Label("P1");
 		p1Badge.getStyleClass().add("player-badge-p1");
 		StackPane.setAlignment(p1Badge, Pos.TOP_LEFT);
@@ -276,14 +281,16 @@ public class BoardView {
 
 		VBox playerInfo = new VBox(2, playerNameLabel, playerRoleTagLabel, playerTurnStatusLabel, playerStatusConditionLabel);
 		playerInfo.setAlignment(Pos.CENTER_LEFT);
-		playerCanister = new  ImageView();
-		playerCanister.setFitWidth(	138);          // Hard limit on width (pixels)
-		playerCanister.setFitHeight(155);         // Hard limit on height (pixels)
-		playerCanister.setPreserveRatio(true);   // Locks aspect ratio so it doesn't stretch distortionally
-		playerCanister.setSmooth(true);          // Smooth resizing algorithm
+		playerEnergyCanister = new ProgressBar();
+		playerEnergyCanister.setProgress(1.0);
+		//playerEnergyCanister.setPrefWidth(120);
+		playerEnergyCanister.setPrefWidth(140);
+		playerEnergyCanister.setPrefHeight(18);
+		playerEnergyCanister.setStyle(
+		    "-fx-accent: #00ffcc;"
+		);
 
-
-		HBox playerCard = new HBox(12, playerAvatar, playerInfo,playerCanister);
+		HBox playerCard = new HBox(12, playerAvatar, playerInfo,playerEnergyCanister);
 		playerCard.setAlignment(Pos.CENTER_LEFT);
 		playerCard.getStyleClass().add("bottom-player-card");
 		playerCard.setPadding(new Insets(10, 20, 10, 16));
@@ -296,9 +303,9 @@ public class BoardView {
 		turnLabel = new Label("🎯 " + game.getCurrent().getName() + "'s turn");
 		turnLabel.getStyleClass().add("bottom-turn-label");
 
-		Button rollBtn = new Button("ROLL DICE");
+		//Button rollBtn = new Button("ROLL DICE");
 		// ... (styling stays the same)
-		rollBtn.setOnAction(e -> controller.handleRollDiceAction());
+		diceView.setOnMouseClicked(e -> controller.handleRollDiceAction());
 
 		// ⚡ Power Up Button Setup
 		Button powerupBtn = new Button("USE POWERUP");
@@ -308,16 +315,16 @@ public class BoardView {
 		powerupBtn.setOnAction(e -> controller.handleUsePowerupAction());
 
 		// 🆕 Side-by-Side Row: Packs the dice face image and both buttons together horizontally
-		HBox centerControlsRow = new HBox(14, diceView, rollBtn, powerupBtn);
+		centerControlsRow = new HBox(14, diceView, powerupBtn);
 		centerControlsRow.setAlignment(Pos.CENTER);
 
 		// Stack the horizontal controls row directly on top of the text label
-		VBox centerBox = new VBox(8, centerControlsRow, turnLabel);
+		 centerBox = new VBox(8, centerControlsRow, turnLabel);
 		centerBox.setAlignment(Pos.CENTER);
 		centerBox.setPadding(new Insets(8, 24, 8, 24));
 
 		// ── Player 2 View Construction Setup ──
-		StackPane oppAvatar = AvatarUtil.buildAvatar(game.getOpponent(), 52);
+		StackPane oppAvatar = AvatarUtil.buildAvatar(game.getOpponent(), 70);
 		Label p2Badge = new Label("P2");
 		p2Badge.getStyleClass().add("player-badge-p2");
 		StackPane.setAlignment(p2Badge, Pos.TOP_RIGHT);
@@ -338,13 +345,18 @@ public class BoardView {
 
 		VBox oppInfo = new VBox(2, opponentNameLabel, opponentRoleTagLabel, opponentTurnStatusLabel, opponentStatusConditionLabel);
 		oppInfo.setAlignment(Pos.CENTER_RIGHT);
-		oppCanister =new ImageView();
-		oppCanister.setFitWidth(138);          // Hard limit on width (pixels)
-		oppCanister.setFitHeight(155);         // Hard limit on height (pixels)
-		oppCanister.setPreserveRatio(true);   // Locks aspect ratio so it doesn't stretch distortionally
-		oppCanister.setSmooth(true);          // Smooth resizing algorithm
+		oppEnergyCanister = new ProgressBar();
+		oppEnergyCanister.setProgress(1.0);
+		oppEnergyCanister.setPrefWidth(120);
 
-		HBox oppCard = new HBox(12,oppCanister, oppInfo, oppAvatar);
+		oppEnergyCanister.setPrefWidth(140);
+		oppEnergyCanister.setPrefHeight(18);
+		
+		oppEnergyCanister.setStyle(
+		    "-fx-accent: #00ffcc;"
+		);
+		
+		HBox oppCard = new HBox(12,oppEnergyCanister, oppInfo, oppAvatar);
 		oppCard.setAlignment(Pos.CENTER_RIGHT);
 		oppCard.getStyleClass().add("bottom-opponent-card");
 		oppCard.setPadding(new Insets(10, 16, 10, 20));
@@ -400,25 +412,48 @@ public class BoardView {
 			updateStatsPanelForMonster(m, cell, game);
 
 		} else if (cell instanceof DoorCell) {
-			// ─── 🆕 SPECIAL DOOR CELL STATE (NO MONSTER PRESENT) ───
-			// Hide the active monster's energy bars since we are inspecting an empty door cell
-			energySectionContainer.setVisible(false);
-			energySectionContainer.setManaged(false);
 
-			// Keep the status badge visible to display the Door's activation state!
-			statsStatusLabel.setVisible(true);
-			statsPositionValueLabel.setText(String.valueOf(cellNumber));
+		    DoorCell dc = (DoorCell) cell;
 
-			game.engine.cells.DoorCell dc = (game.engine.cells.DoorCell) cell;
-			if (dc.isActivated()) {
-				statsStatusLabel.setText("❌ EXHAUSTED");
-				statsStatusLabel.getStyleClass().setAll("status-badge-frozen"); // Reusing a red/gray style
-			} else {
-				statsStatusLabel.setText("● DOOR ACTIVE");
-				statsStatusLabel.getStyleClass().setAll("status-badge-active"); // Reusing your green active style
-			}
+		    // ─── SHOW ENERGY SECTION FOR DOORS TOO ───
+		    if (!energySectionContainer.isVisible()) {
 
-		} else {
+		        energySectionContainer.setManaged(true);
+		        energySectionContainer.setVisible(true);
+		        statsStatusLabel.setVisible(true);
+
+		        javafx.animation.FadeTransition fadeIn =
+		                new javafx.animation.FadeTransition(
+		                        javafx.util.Duration.millis(250),
+		                        energySectionContainer
+		                );
+
+		        fadeIn.setFromValue(0.0);
+		        fadeIn.setToValue(1.0);
+		        fadeIn.play();
+		    }
+
+		    // Door energy display
+		    double pct = dc.getEnergy();
+
+		    statsEnergyBar.setProgress(Math.max(0, pct / 1000.0));
+		    statsEnergyValueLabel.setText(String.valueOf((int) pct));
+
+		    statsPositionValueLabel.setText(String.valueOf(cellNumber));
+
+		    // Door status
+		    if (dc.isActivated()) {
+
+		        statsStatusLabel.setText("❌ EXHAUSTED");
+		        statsStatusLabel.getStyleClass().setAll("status-badge-frozen");
+		        
+
+		    } else {
+
+		        statsStatusLabel.setText("🚪 DOOR ACTIVE");
+		        statsStatusLabel.getStyleClass().setAll("status-badge-active");
+		    }
+		}else {
 			// ─── STANDARD EMPTY TILE (SHIFT UP / HIDE ENERGY & STATUS) ───
 			if (energySectionContainer.isVisible() || statsStatusLabel.isVisible()) {
 				statsStatusLabel.setVisible(false);
@@ -444,13 +479,13 @@ public class BoardView {
 		if (m == null) return;
 
 		double pct = clampEnergy(m);
-		statsEnergyBar.setProgress(pct);
+		statsEnergyBar.setProgress(Math.max(0, pct / 1000.0));
 		statsEnergyValueLabel.setText(formatEnergyPct(pct));
 		statsPositionValueLabel.setText(String.valueOf(m.getPosition()));
 
 		// Assign correct text style classes to side status badge
 		if (m.isFrozen()) {
-			statsStatusLabel.setText("❄ FROZEN");
+			statsStatusLabel.setText("❄ FROZEN - 1 turn");
 			statsStatusLabel.getStyleClass().setAll("status-badge-frozen");
 		} else if (m.isShielded()) {
 			statsStatusLabel.setText("🛡 SHIELDED");
@@ -465,6 +500,7 @@ public class BoardView {
 	}
 
 	private void refreshBottomCards(Game game) {
+		
 		Monster cur = game.getCurrent();
 		Monster p1 = game.getPlayer();
 		Monster p2 = game.getOpponent();
@@ -475,33 +511,62 @@ public class BoardView {
 
 		opponentTurnStatusLabel.setText(p2 == cur ? "Turn Active" : "Waiting...");
 		opponentTurnStatusLabel.getStyleClass().setAll(p2 == cur ? "bottom-turn-active" : "bottom-turn-waiting");
+ 
+		
+		PauseTransition delay = new PauseTransition(Duration.seconds(0.2));
 
+		delay.setOnFinished(e -> {
+
+		    if (game.getCurrent() == game.getPlayer()) {
+
+		        centerBox.setPadding(new Insets(8, 600, 8, 0));
+
+		    } else {
+
+		        centerBox.setPadding(new Insets(8, 0, 8, 600));
+		    }
+		});
+
+		delay.play();
+		String p1MonsterClass = p1.getClass().getSimpleName(); // Drops "Dasher", "MultiTasker", etc.
+	    playerRoleTagLabel.setText(p1.getRole() + " — " + p1MonsterClass + "  A");
+
+	    String p2MonsterClass = p2.getClass().getSimpleName();
+	    opponentRoleTagLabel.setText(p2.getRole() + " — " + p2MonsterClass + "  B");
+
+	    // 2. Update Permanent Dynamic Condition for Player 1
+	    updatePlayerConditionLabel(p1, playerStatusConditionLabel);
+
+	    // 3. Update Permanent Dynamic Condition for Player 2
+	    updatePlayerConditionLabel(p2, opponentStatusConditionLabel);
+	   
+		
 		// 2. 🆕 Update Permanent Dynamic Condition for Player 1
-		updatePlayerConditionLabel(p1, playerStatusConditionLabel);
-
-		// 3. 🆕 Update Permanent Dynamic Condition for Player 2
-		updatePlayerConditionLabel(p2, opponentStatusConditionLabel);
-		updateCanisterIcon(p1, playerCanister);
-		updateCanisterIcon(p2, oppCanister);
+		
+		updateCanisterIcon(p1, playerEnergyCanister);
+		updateCanisterIcon(p2, oppEnergyCanister);
+		
 	}
 
 	// 🆕 Helper method to sync condition texts and styles onto specific player badges
 	private void updatePlayerConditionLabel(Monster player, Label statusLabel) {
-		if (statusLabel == null || player == null) return;
+	    if (statusLabel == null || player == null) return;
 
-		if (player.isFrozen()) {
-			statusLabel.setText("❄ FROZEN");
-			statusLabel.getStyleClass().setAll("bottom-condition-frozen");
-		} else if (player.isShielded()) {
-			statusLabel.setText("🛡 SHIELDED");
-			statusLabel.getStyleClass().setAll("bottom-condition-shielded");
-		} else if (player.isConfused()) {
-			statusLabel.setText("😵 CONFUSED");
-			statusLabel.getStyleClass().setAll("bottom-condition-confused");
-		} else {
-			statusLabel.setText("● NORMAL");
-			statusLabel.getStyleClass().setAll("bottom-condition-normal");
-		}
+	    if (player.isFrozen()) {
+	        statusLabel.setText("❄ FROZEN");
+	        statusLabel.getStyleClass().setAll("bottom-condition-frozen");
+	    } else if (player.isShielded()) {
+	        statusLabel.setText("🛡 SHIELDED");
+	        statusLabel.getStyleClass().setAll("bottom-condition-shielded");
+	    } else if (player.isConfused()) {
+	        // ✅ FIX: Read the exact confusion turns count from your milestone logic
+	        int turnsLeft = player.getConfusionTurns(); 
+	        statusLabel.setText("😵 CONFUSED (" + turnsLeft + ")");
+	        statusLabel.getStyleClass().setAll("bottom-condition-confused");
+	    } else {
+	        statusLabel.setText("● NORMAL");
+	        statusLabel.getStyleClass().setAll("bottom-condition-normal");
+	    }
 	}
 
 	private String resolveCellTypeName(int cellNumber, Cell cell) {
@@ -511,7 +576,7 @@ public class BoardView {
 		// ── Now clean, readable, and error-free! ──
 		if (cell instanceof DoorCell) {
 			DoorCell dc = (DoorCell) cell;
-			return (dc.getRole() == Role.SCARER) ? "Scare Door ⚡" : "Laugh Door 😂";
+			return (dc.getRole() == Role.SCARER) ? "Scare Door ⚡\n"+dc.getEnergy() : "Laugh Door 😂 \n"+dc.getEnergy();
 		}
 
 		if (contains(Constants.MONSTER_CELL_INDICES, cellNumber)) return "Monster Cell 👾";
@@ -527,30 +592,26 @@ public class BoardView {
 		return false;
 	}
 	// too check energy level ranges and selectr the correct canister image
-	private void updateCanisterIcon(Monster m, ImageView canisterView) {
-		if (m == null || canisterView == null) return;
+	private void updateCanisterIcon(Monster m, ProgressBar bar) {
 
-		double energy = m.getEnergy();
-		String filename;
+	    if (m == null || bar == null) return;
 
-		// 3 Phases Logic mapping:
-		if (energy > 650) {
-			filename = "canisterfull.png";   
-		} else if (energy > 250) {
-			filename = "canistermedium.png";  
-		} else {
-			filename = "canisterlow.png";  
-		}
+	    double progress = Math.max(0, m.getEnergy() / 1000.0);
 
-		try {
-			URL url = getClass().getResource("/assets/" + filename);
-			if (url != null) {
-				Image img = new Image(url.toExternalForm());
-				canisterView.setImage(img);
-			}
-		} catch (Exception e) {
-			System.out.println("Could not load canister image asset: " + filename);
-		}
+	    bar.setProgress(progress);
+
+	    if (progress > 0.65) {
+
+	        bar.setStyle("-fx-accent: #00ff99;");
+
+	    } else if (progress > 0.25) {
+
+	        bar.setStyle("-fx-accent: #ffd633;");
+
+	    } else {
+
+	        bar.setStyle("-fx-accent: #ff4444;");
+	    }
 	}
 
 	private double clampEnergy(Monster m) {
@@ -573,56 +634,95 @@ public class BoardView {
 
 
 	public void showSpamWarningPopup(String messageText) {
-		// Find the top-most visual layer of your scene layout tree
-		if (!(stage.getScene().getRoot() instanceof BorderPane)) return;
-		BorderPane rootPane = (BorderPane) stage.getScene().getRoot();
+        if (!(stage.getScene().getRoot() instanceof BorderPane)) return;
+        BorderPane rootPane = (BorderPane) stage.getScene().getRoot();
 
-		// Check if a popup warning is already floating on screen to avoid layering copies
-		if (rootPane.lookup(".spam-warning-popup") != null) return;
+        // Check if a popup warning is already floating on screen to avoid layering duplicate copies
+        if (rootPane.lookup(".spam-warning-container") != null) return;
 
-		// Construct the alert container box
-		HBox warningPopup = new HBox(12);
-		warningPopup.getStyleClass().add("spam-warning-popup");
-		warningPopup.setAlignment(Pos.CENTER);
-		warningPopup.setMaxWidth(380);
-		warningPopup.setMaxHeight(50);
-		warningPopup.setPadding(new Insets(12, 20, 12, 20));
+        // ── 1. Construct the Alert Container Card ──
+        HBox warningPopup = new HBox(12);
+        warningPopup.getStyleClass().add("spam-warning-popup");
+        warningPopup.setAlignment(Pos.CENTER);
+        warningPopup.setMaxWidth(400); // Slightly wider to hold varying text dimensions nicely
+        warningPopup.setMaxHeight(60);
+        warningPopup.setPadding(new Insets(15, 24, 15, 24));
+        
+        // Custom inline style fallback to ensure it pops off your game board backdrop perfectly
+        warningPopup.setStyle(
+            "-fx-background-color: #1e1b4b; " + 
+            "-fx-border-color: #ef4444; " + 
+            "-fx-border-width: 2px; " + 
+            "-fx-border-radius: 8px; " + 
+            "-fx-background-radius: 8px; " +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 15, 0, 0, 4);"
+        );
 
-		// Text setup inside container
-		Label warningLabel = new Label("⚠️ " + messageText);
-		warningLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 13px;");
-		warningPopup.getChildren().add(warningLabel);
+        Label warningLabel = new Label("⚠️ " + messageText);
+        warningLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px; -fx-text-alignment: center;");
+        warningLabel.setWrapText(true);
+        warningPopup.getChildren().add(warningLabel);
 
-		// Position it right at the top-center of your window space
-		BorderPane.setAlignment(warningPopup, Pos.TOP_CENTER);
-		BorderPane.setMargin(warningPopup, new Insets(20, 0, 0, 0));
+        // ── 🆕 2. Build the Overlay Layer Blocker ──
+        // This StackPane covers the central layout layer area. It acts as an transparent 
+        // overlay layer holding your warning popup centered perfectly.
+        StackPane overlayContainer = new StackPane(warningPopup);
+        overlayContainer.getStyleClass().add("spam-warning-container");
+        overlayContainer.setAlignment(Pos.CENTER);
+        
+        // CRITICAL: This allows mouse clicks to pass right through the empty spaces of the container 
+        // so background elements don't lose drag/click interactivity during the alert duration window!
+        overlayContainer.setPickOnBounds(false); 
 
-		// Inject the node onto your main window canvas layout
-		rootPane.setTop(warningPopup);
+        // Safely cache your existing active game board grid pane before applying the warning layer
+        javafx.scene.Node previousCenterNode = rootPane.getCenter();
 
-		// ── Smooth Animation Pass ──
-		// 1. Initial fade-in entry sequence
-		javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
-				javafx.util.Duration.millis(200), warningPopup
-				);
-		fadeIn.setFromValue(0.0);
-		fadeIn.setToValue(1.0);
+        // Place the overlay containing the warning box directly into the central workspace boundaries
+        if (previousCenterNode instanceof StackPane && !(previousCenterNode.getStyleClass().contains("spam-warning-container"))) {
+            // If center is already a layout StackPane container, simply stack our popup node cleanly over it
+            ((StackPane) previousCenterNode).getChildren().add(overlayContainer);
+        } else {
+            // Otherwise, combine your original game board and our new popup container inside a composite StackPane
+            StackPane layoutStack = new StackPane();
+            if (previousCenterNode != null) {
+                layoutStack.getChildren().add(previousCenterNode);
+            }
+            layoutStack.getChildren().add(overlayContainer);
+            rootPane.setCenter(layoutStack);
+        }
 
-		// 2. Delayed fade-out exit sequence
-		javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
-				javafx.util.Duration.millis(300), warningPopup
-				);
-		fadeOut.setFromValue(1.0);
-		fadeOut.setToValue(0.0);
-		fadeOut.setDelay(javafx.util.Duration.seconds(1.2)); // Show on screen for 1.2 seconds
+        // ── 3. Animation Processing Pass ──
+        javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+            javafx.util.Duration.millis(250), overlayContainer
+        );
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
 
-		// 3. Clean up: Once completely faded out, completely purge the node layout from view
-		fadeOut.setOnFinished(e -> rootPane.setTop(null));
+        javafx.animation.FadeTransition fadeOut = new javafx.animation.FadeTransition(
+            javafx.util.Duration.millis(350), overlayContainer
+        );
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        // ── 🆕 FIXED: Extended retention delay window length to exactly 5 seconds ──
+        fadeOut.setDelay(javafx.util.Duration.seconds(5.0)); 
 
-		// Chain animation timelines together sequential path
-		fadeIn.setOnFinished(e -> fadeOut.play());
-		fadeIn.play();
-	}
+        // ── 🆕 4. Clean Up Sequence ──
+        fadeOut.setOnFinished(e -> {
+            // Safely rip down the warning layer node out of your layout hierarchies
+            if (rootPane.getCenter() instanceof StackPane) {
+                StackPane currentCenterStack = (StackPane) rootPane.getCenter();
+                currentCenterStack.getChildren().remove(overlayContainer);
+                
+                // If only your original board node remains, clear out the temporary stack wrapping to restore baseline layout
+                if (currentCenterStack.getChildren().size() == 1 && previousCenterNode != null) {
+                    rootPane.setCenter(previousCenterNode);
+                }
+            }
+        });
+
+        fadeIn.setOnFinished(e -> fadeOut.play());
+        fadeIn.play();
+    }
 
 	public void showVictoryOverlay(String winnerName, int position, int energy) {
 	    if (!(stage.getScene().getRoot() instanceof BorderPane)) return;

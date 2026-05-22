@@ -124,6 +124,8 @@ public class GamePlay {
 
         } catch (Exception ex) {
             System.err.println("Move skipped or rule exception: " + ex.getMessage());
+            boardView.showSpamWarningPopup("Invalid Move: " + ex.getMessage());
+
             boardView.refreshAllViewComponents();
             isTurnInProgress = false;
         }

@@ -9,10 +9,12 @@ import game.engine.cells.MonsterCell;
 import game.engine.monsters.Monster;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.function.BiConsumer;
@@ -108,7 +110,8 @@ public class BoardGridPane extends GridPane {
     private String getCellImageFilename(int n,Cell cell) {
         if (n == Constants.STARTING_POSITION)                 return "start.png";
         if (n == Constants.WINNING_POSITION)                  return "end.png";
-        if (contains(Constants.CONVEYOR_CELL_INDICES, n))     return "conveyor.png";
+        if (contains(Constants.CONVEYOR_CELL_INDICES, n)&&n!=66)     return "conveyor.png";
+        if (contains(Constants.CONVEYOR_CELL_INDICES, n)&&n==66)     return "conveyorleft.png";
         if (contains(Constants.SOCK_CELL_INDICES,     n))     return "sock.png";
         if (contains(Constants.CARD_CELL_INDICES,     n))     return "card.png";
         if (cell instanceof DoorCell) {
@@ -173,13 +176,36 @@ public class BoardGridPane extends GridPane {
             for (int col = 0; col < COLS; col++) {
                 int  cellNumber = getCellNumber(boardRow, col);
                 Cell cell       = getCellFromBoard(cellNumber);
-
+                
                 StackPane cellPane = new StackPane();
                 cellPane.setPrefSize(CELL_SIZE*2, CELL_SIZE);
                 cellPane.setMinSize(CELL_SIZE, CELL_SIZE);
                 cellPane.setMaxSize(CELL_SIZE*2, CELL_SIZE);
                 cellPane.getStyleClass().add("board-cell");
                 cellPane.getStyleClass().add(getCellStyle(cellNumber,cell));
+                
+                
+                if (contains(Constants.CONVEYOR_CELL_INDICES, cellNumber)) {
+                    // Cast to ConveyorBelt if your model cell stores destination data
+                    if (cell instanceof game.engine.cells.ConveyorBelt) {
+                        game.engine.cells.ConveyorBelt cb = (game.engine.cells.ConveyorBelt) cell;
+                        
+                        // Assuming your ConveyorBelt engine class has a target/destination getter (e.g., getTargetCell() or getTargetIndex())
+                        // Adjust the method name below to match your exact backend ConveyorBelt class implementation!
+                        int destination = cb.getEffect(); 
+                        
+                        Tooltip conveyorTooltip = new Tooltip("Conveyor Belt ⚙️\nSpeeds you up to Cell: " + destination);
+                        conveyorTooltip.getStyleClass().add("conveyor-tooltip");
+                        
+                        // Setting a snappy show-delay makes the UX feel responsive and smooth
+                        //conveyorTooltip.setShowDelay(Duration.millis(150));
+                        Tooltip.install(cellPane, conveyorTooltip);
+                    } else {
+                        // Fallback generic tooltip if target lookup relies on index mapping
+                        Tooltip conveyorTooltip = new Tooltip("Conveyor Belt ⚙️\nHover over to check track.");
+                        Tooltip.install(cellPane, conveyorTooltip);
+                    }
+                }
 
                 // ── Layer 1: background image ─────────────────────
                 String imgFile = getCellImageFilename(cellNumber,cell);
@@ -225,9 +251,12 @@ public class BoardGridPane extends GridPane {
                     cellPane.getChildren().add(monsterLabel);
 
                 // ── Click → update Stats panel ────────────────────
+                
+                
                 final int cn   = cellNumber;
                 final Cell cel = cell;
                 cellPane.setOnMouseClicked(e -> {
+                	
                     if (cellClickListener != null) {
                         cellClickListener.accept(cn, cel);
                     }
