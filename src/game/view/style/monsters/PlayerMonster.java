@@ -2,6 +2,7 @@ package game.view.style.monsters;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -57,7 +58,9 @@ public class PlayerMonster extends StackPane{
 	    	player.setInCell();
 	    });        
     }
-	
+	public void confuse(){
+
+	}
 	public void standUp(){
 		this.player=playerList[0];
 	}
