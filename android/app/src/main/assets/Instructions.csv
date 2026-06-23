@@ -1,0 +1,36 @@
+🎮 GAME INITIALIZATION,#00ffe5,TITLE
+👹NUMBER 1: Pick Your Monster Side,#ffcc00,SUBTITLE
+😱 Choose SCARER or 😂 LAUGHER,#ffffff,
+⚔ Rival monster from the opposite side appears,#ff6666,
+🏢 NUMBER 2: The Monster Floor has:  🢃,#ffcc00,SUBTITLE
+🟦 100-cell zigzag board (10×10),#87CEFA,
+🚪 50 glowing SCARER & LAUGHER doors on odd cells,#ff99ff,
+🎴 10 mystery card cells,#FFD700,
+🔄 5 conveyor belts,#00FFFF,
+☣ 5 contamination socks,#FFA07A,
+👾 6 monster helper cells,#ADFF2F,
+🏁 Race from Cell 0 to Cell 99!,#00fAE5,
+🎴 A shuffled deck of 25 cards is ready,#09fAE5,
+⚡ NUMBER 3: Monsters Enter the Challenge,#ffcc00,SUBTITLE
+🔋   Both monsters begin with their starting energy,#00ff99,
+🏃 Player & opponent start at Cell 0,#00ff99,
+👾 The remaining monsters guard special Monster Cells,#ff5678,
+💥 Every monster brings unique abilities & powerful boost,#ff22ff,
+🎮 Game Rules,#00ffe5,TITLE
+💪 Powerup Phase:\n  Spend 500 energy to activate your monster’s special power before rolling.,#F2E998,
+🎲 Roll the Dice:\n Roll a classic 6-sided dice to determine how many cells you move.,#fffff9,
+🧩 Cell Activation:\n  Landing on a special cell instantly triggers its effect.,#B1DF6F,
+⚡ Energy & Effects:\n Special cells may change energy position or activate unique events.,#FFF850,
+🎴 Card Cells may grant surprises,#ffcc00,
+🪜Conveyors can move you forward as LADDERS,#B88075,
+🐍 Socks may cause trouble of losing Sock energy and move you backward as SNAKES,#4EF844,
+👾 Monster Cells can help teammates (Same Role) to executes the powerUp effect for free,#F83A8B,
+🗺️ Board Update: Monster positions and all effects are updated after every move.,#4567F0,
+🚫Occupied Cell Rule: If your final destination is occupied by the opponent the move fails!,#ff5500,
+🔄Stay in your current position Roll,#5BBBFB,
+🎲again and retry the turn,#fffff9,
+🔁 Turn Switch:\n  If no monster reaches the goal  the turn passes to the other player,#5BB1FB,
+🏆 Win Condition,#00ffe5,TITLE
+🚪 Reach Cell 100 — the legendary Boo’s Door,#B88075,
+⚡ Have at least 1000 energy in your monster’s canister,#FFF850,
+✅ Both conditions must be achieved at the same time to win the game,#4EF844,
